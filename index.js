@@ -9,13 +9,21 @@ const port = 5000;
 app.use(cors());
 app.use(express.json());
 
+// const db = mysql.createConnection({
+//   host: "127.0.0.1",
+//   user: "fernando",
+//   password: "19735",
+//   database: "BD_AlmacenSpiaza",
+//   port: 3306,
+// });
+
 const db = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "fernando",
-  password: "19735",
-  database: "BD_AlmacenSpiaza",
-  port: 3306,
-});
+    host: "127.0.0.1",
+    user: "fernando",
+    password: "19735",
+    database: "BD_AlmacenSpiaza",
+    port: 3306,
+  });
 
 db.connect((err) => {
   if (err) {
@@ -28,21 +36,15 @@ db.connect((err) => {
 // Obtener todas las mascotas
 const saltRounds = 10; // Número de rondas para la sal (puedes ajustarlo según tus necesidades)
 
-app.get("/trabajadores", (req, res) => {
-  db.query("SELECT * FROM Empleado", (err, result) => {
+app.get("/listUsuarios", (req, res) => {
+  db.query("SELECT Usuario FROM Empleado;", (err, result) => {
     if (err) {
       console.error("Error al consultar la base de datos: ", err);
       res.status(500).send("Error del servidor");
     } else {
       // Mapear los resultados y encriptar las contraseñas
-      const trabajadoresEncriptados = result.map((trabajador) => {
-        return {
-          ...trabajador,
-          Contrasena: bcrypt.hashSync(trabajador.Contrasena, saltRounds)
-        };
-      });
 
-      res.status(200).json(trabajadoresEncriptados);
+      res.status(200).json(result);
     }
   });
 });
@@ -61,6 +63,22 @@ app.get("/trabajadores", (req, res) => {
 //   });
 // });
 
+// const DetectarPasswords=(passwordFromUser,hashedPasswordFromDatabase)=>{
+  //   bcrypt.compare(passwordFromUser, hashedPasswordFromDatabase, (err, result) => {
+  //     if (err) {
+  //       console.error("Error al comparar contraseñas: ", err);
+  //       // Manejar el error
+  //     } else {
+  //       if (result) {
+  //         console.log("La contraseña es válida");
+  //         // Permitir el acceso
+  //       } else {
+  //         console.log("La contraseña no es válida");
+  //         // Denegar el acceso
+  //       }
+  //     }
+  //   });
+  // }
 
 app.listen(port, () => {
   console.log(`Servidor backend en ejecución en http://localhost:${port}`);
