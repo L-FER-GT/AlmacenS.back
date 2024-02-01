@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 // Función para encriptar una contraseña
 async function encriptarContrasena(contrasena) {
@@ -16,6 +16,18 @@ async function encriptarContrasena(contrasena) {
   }
 }
 
+async function DetectarPasswords(passwordFromUser, hashedPasswordFromDatabase) {
+  try {
+    const result = await bcrypt.compare(
+      passwordFromUser,
+      hashedPasswordFromDatabase);
+      return result
+  } catch (err) {
+    throw err;
+  }
+}
+
 module.exports = {
-    encriptarContrasena
-  };
+  encriptarContrasena,
+  DetectarPasswords
+};

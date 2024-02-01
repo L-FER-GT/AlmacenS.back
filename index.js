@@ -1,4 +1,7 @@
-const { encriptarContrasena } = require("./funciones/Encriptar");
+const {
+  encriptarContrasena,
+  DetectarPasswords,
+} = require("./funciones/Encriptar");
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -48,7 +51,7 @@ app.get("/listUsuarios", (req, res) => {
   });
 });
 
-// // Agregar una nueva mascota
+//Agregar una nuevo ususario
 app.post("/newUser", (req, res) => {
   const nuevoUsuario = req.body;
   const {
@@ -79,22 +82,29 @@ app.post("/newUser", (req, res) => {
     );
 });
 
-// const DetectarPasswords=(passwordFromUser,hashedPasswordFromDatabase)=>{
-//   bcrypt.compare(passwordFromUser, hashedPasswordFromDatabase, (err, result) => {
-//     if (err) {
-//       console.error("Error al comparar contraseñas: ", err);
-//       // Manejar el error
-//     } else {
-//       if (result) {
-//         console.log("La contraseña es válida");
-//         // Permitir el acceso
-//       } else {
-//         console.log("La contraseña no es válida");
-//         // Denegar el acceso
-//       }
-//     }
-//   });
-// }
+//DetectarPasswords
+
+//Agregar una nuevo ususario
+app.post("/validateUser", (req, res) => {
+  const loginUser = req.body;
+  const { User, Password } = loginUser;
+  const consulta = `select contrasena from Empleado where Usuario = '${User}'`;
+  db.query(consulta, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error del servidor");
+    } else {
+      const claveHash = result[0].contrasena;
+      DetectarPasswords(Password, claveHash)
+        .then((veredict) => {
+          res.status(200).send({isCorrect:veredict,idUser:''});
+        })
+        .catch((err) => {
+          res.status(500).send("Error del servidor");
+        });
+    }
+  });
+});
 
 app.listen(port, () => {
   console.log(`Servidor backend en ejecución en http://localhost:${port}`);
