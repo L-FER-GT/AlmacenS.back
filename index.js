@@ -4,26 +4,26 @@ const cors = require("cors");
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3001;
+const port = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// const db = mysql.createConnection({
-//   host: "127.0.0.1",
-//   user: "Alvaro",
-//   password: "19735",
-//   database: "BD_AlmacenSpiaza",
-//   port: 3306,
-// });
-
 const db = mysql.createConnection({
-    host: "127.0.0.1",
-    user: "fernando",
-    password: "19735",
-    database: "BD_AlmacenSpiaza",
-    port: 3306,
-  });
+  host: "127.0.0.1",
+  user: "Alvaro",
+  password: "Alvaro02004221",
+  database: "BD_AlmacenSpiaza",
+  port: 3306,
+});
+
+// const db = mysql.createConnection({
+//     host: "127.0.0.1",
+//     user: "fernando",
+//     password: "19735",
+//     database: "BD_AlmacenSpiaza",
+//     port: 3306,
+//   });
 
 db.connect((err) => {
   if (err) {
