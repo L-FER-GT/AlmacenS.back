@@ -82,13 +82,11 @@ app.post("/newUser", (req, res) => {
     );
 });
 
-//DetectarPasswords
-
-//Agregar una nuevo ususario
+//Validar la contraseña al iniciar sesion
 app.post("/validateUser", (req, res) => {
   const loginUser = req.body;
   const { User, Password } = loginUser;
-  const consulta = `select contrasena from Empleado where Usuario = '${User}'`;
+  const consulta = `select ID_Empleado, contrasena from Empleado where Usuario = '${User}'`;
   db.query(consulta, (err, result) => {
     if (err) {
       console.error(err);
@@ -97,7 +95,9 @@ app.post("/validateUser", (req, res) => {
       const claveHash = result[0].contrasena;
       DetectarPasswords(Password, claveHash)
         .then((veredict) => {
-          res.status(200).send({isCorrect:veredict,idUser:''});
+          res
+            .status(200)
+            .send({ isCorrect: veredict, idUser: result[0].ID_Empleado });
         })
         .catch((err) => {
           res.status(500).send("Error del servidor");
@@ -106,6 +106,21 @@ app.post("/validateUser", (req, res) => {
   });
 });
 
+//Validar la contraseña al iniciar sesion
+app.post("/dataTrabajador", (req, res) => {
+  const idTrabajador = req.body;
+  const { idUser } = idTrabajador;
+  console.log(idTrabajador);
+  const consulta = `SELECT DocumentoIdentidad, DocumentoIdentidad, Nombres, Apellidos, Cargo, Informacion_Contacto, Usuario FROM Empleado WHERE ID_Empleado = ${idUser};`;
+  db.query(consulta, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error del servidor");
+    } else {
+      res.status(200).send(result[0]);
+    }
+  });
+});
 app.listen(port, () => {
   console.log(`Servidor backend en ejecución en http://localhost:${port}`);
 });
