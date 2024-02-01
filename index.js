@@ -51,17 +51,18 @@ app.get("/listUsuarios", (req, res) => {
 
 
 // // Agregar una nueva mascota
-// app.post("/duenios", (req, res) => {
-//   const nuevaMascota = req.body;
-//   db.query("INSERT INTO dueño SET ?", nuevaMascota, (err, result) => {
-//     if (err) {
-//       console.error("Error al agregar un nuevo dueño: ", err);
-//       res.status(500).send("Error del servidor");
-//     } else {
-//       res.status(201).send("Mascota agregada exitosamente");
-//     }
-//   });
-// });
+app.post("/newUser", (req, res) => {
+  const nuevoUsuario = req.body;
+  console.log(nuevoUsuario);
+  db.query("SELECT Usuario FROM Empleado;", (err, result) => {
+    if (err) {
+      console.error("Error al agregar un nuevo dueño: ", err);
+      res.status(500).send("Error del servidor");
+    } else {
+      res.status(200).send("Mascota agregada exitosamente");
+    }
+  });
+});
 
 // const DetectarPasswords=(passwordFromUser,hashedPasswordFromDatabase)=>{
   //   bcrypt.compare(passwordFromUser, hashedPasswordFromDatabase, (err, result) => {
