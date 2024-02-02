@@ -82,6 +82,37 @@ app.post("/newUser", (req, res) => {
     );
 });
 
+//Modificar Usuario
+app.post("/modUser", (req, res) => {
+  const nuevosDatos = req.body;
+  const {
+    DocumentoIdentidad,
+    Nombres,
+    Apellidos,
+    Cargo,
+    Contacto,
+    User,
+    Password,
+    idUser
+  } = nuevosDatos;
+  const setValues = {
+    DocumentoIdentidad:DocumentoIdentidad,
+    Nombres: Nombres,
+    Apellidos: Apellidos,
+    Cargo: Cargo,
+    Informacion_Contacto: Contacto,
+  };
+  const consulta = 'UPDATE Empleado SET ? WHERE ID_Empleado = ?';
+  db.query(consulta, [setValues, idUser] , (err, result) => {
+    if (err) {
+      res.status(500).send("Error del servidor");
+    } else {
+      res.status(200).send("Usuario Editado Correctamente");
+    }
+  });
+});
+
+
 //Validar la contraseña al iniciar sesion
 app.post("/validateUser", (req, res) => {
   const loginUser = req.body;
@@ -110,7 +141,6 @@ app.post("/validateUser", (req, res) => {
 app.post("/dataTrabajador", (req, res) => {
   const idTrabajador = req.body;
   const { idUser } = idTrabajador;
-  console.log(idTrabajador);
   const consulta = `SELECT DocumentoIdentidad, DocumentoIdentidad, Nombres, Apellidos, Cargo, Informacion_Contacto, Usuario FROM Empleado WHERE ID_Empleado = ${idUser};`;
   db.query(consulta, (err, result) => {
     if (err) {
