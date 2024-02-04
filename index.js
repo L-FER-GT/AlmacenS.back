@@ -6,7 +6,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-
+const multer = require('multer');
 const app = express();
 const port = 5000;
 
@@ -151,6 +151,69 @@ app.post("/dataTrabajador", (req, res) => {
     }
   });
 });
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+//GESTION DE IMAGENES
+app.post('/newImage', upload.single('image'), (req, res) => {
+  const { nombre } = req.body;
+  const imageBuffer = req.file.buffer;
+
+  // Aquí deberías insertar la imagen y otros datos en tu base de datos
+  const sql = 'INSERT INTO Imagenes (Nombre, Image) VALUES (?, ?)';
+  db.query(sql, [nombre, imageBuffer], (error, results, fields) => {
+    if (error) {
+      console.error('Error al insertar en la base de datos:', error);
+      return res.status(500).json({ error: 'Error al insertar en la base de datos' });
+    }
+
+    res.json({ success: true, message: 'Imagen subida correctamente' });
+  });
+});
+
+app.get('/getIdNamesImage', (req, res) => {
+  const sql = 'SELECT ID_Image, Nombre FROM Imagenes';
+  db.query(sql, (error, results, fields) => {
+    if (error) {
+      console.error('Error al obtener IDs y nombres de la base de datos:', error);
+      return res.status(500).json({ error: 'Error al obtener IDs y nombres de la base de datos' });
+    }
+
+    res.json(results);
+  });
+});
+
+app.post('/getImageById', (req, res) => {
+  const { id } = req.body;
+
+  const sql = 'SELECT Image FROM Imagenes WHERE ID_Image = ?';
+  db.query(sql, [id], (error, results, fields) => {
+    if (error) {
+      console.error('Error al obtener la imagen de la base de datos:', error);
+      return res.status(500).json({ error: 'Error al obtener la imagen de la base de datos' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Imagen no encontrada' });
+    }
+
+    const { Image } = results[0];
+    res.json(Image);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.listen(port, () => {
   console.log(`Servidor backend en ejecución en http://localhost:${port}`);
 });
