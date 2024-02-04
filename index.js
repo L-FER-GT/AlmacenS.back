@@ -203,6 +203,24 @@ app.post('/getImageById', (req, res) => {
 });
 
 
+// COPNTROL DE PROVEEDORES 
+app.post('/newProveedor', async (req, res) => {
+
+  const { nombre, informacionContacto, imagenAsociada } = req.body;
+
+  const sql = 'INSERT INTO Proveedor (Nombre, Informacion_Contacto, Imagen_Asociada) VALUES (?, ?, ?)';
+
+  db.query(sql, [nombre, informacionContacto, imagenAsociada], (error, results, fields) => {
+    if (error) {
+      console.error('Error al insertar en la base de datos:', error);
+      return res.status(500).json({ error: 'Error al insertar en la base de datos' });
+    }
+
+    res.status(200).json({ message: 'Proveedor agregado con éxito' });
+  });
+  
+});
+
 
 
 
