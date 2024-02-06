@@ -2,7 +2,7 @@ const {
   encriptarContrasena,
   DetectarPasswords,
 } = require("./funciones/Encriptar");
-const {generarCodigoAleatorio} = require("./funciones/CodAleatorio");
+const { generarCodigoAleatorio } = require("./funciones/CodAleatorio");
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -298,7 +298,7 @@ app.post("/newAlmacen", async (req, res) => {
     Capacidad_Utilizada,
     Imagen_Referencial,
   } = req.body;
-  const codAl=generarCodigoAleatorio();
+  const codAl = generarCodigoAleatorio();
   const sql =
     "INSERT INTO Almacen (Referencia, Pais, Departamento, Provincia, Distrito, Direccion, Capacidad, Capacidad_Utilizada, Imagen_Referencial, AccesKey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -314,7 +314,7 @@ app.post("/newAlmacen", async (req, res) => {
       Capacidad,
       Capacidad_Utilizada,
       Imagen_Referencial,
-      codAl
+      codAl,
     ],
     (error, results, fields) => {
       if (error) {
@@ -376,7 +376,6 @@ app.post("/editAlmacen", async (req, res) => {
   );
 });
 
-
 app.post("/newEmpleadoAlmacen", async (req, res) => {
   const { ID_Empleado, ID_Almacen } = req.body;
 
@@ -393,12 +392,10 @@ app.post("/newEmpleadoAlmacen", async (req, res) => {
 
     const nuevoEmpleadoAlmacenId = results.insertId; // Obtener el ID del nuevo registro
 
-    res
-      .status(200)
-      .json({
-        message: "Empleado_Almacen agregado con éxito",
-        id: nuevoEmpleadoAlmacenId,
-      });
+    res.status(200).json({
+      message: "Empleado_Almacen agregado con éxito",
+      id: nuevoEmpleadoAlmacenId,
+    });
   });
 });
 
@@ -406,10 +403,7 @@ app.get("/getAlmacenesEmpleado", (req, res) => {
   const sql = "SELECT * FROM Empleado_Almacen";
   db.query(sql, (error, results, fields) => {
     if (error) {
-      console.error(
-        "Error al obtener empleados almacen:",
-        error
-      );
+      console.error("Error al obtener empleados almacen:", error);
       return res
         .status(500)
         .json({ error: "Error al obtener empleados almacen" });
@@ -435,14 +429,8 @@ app.get("/getModelos", (req, res) => {
 });
 
 app.post("/newModelo", async (req, res) => {
-  const {
-    ID_Proveedor,
-    Nombre,
-    Descripcion,
-    Material,
-    Tipo,
-    Imagen_Asociada,
-  } = req.body;
+  const { ID_Proveedor, Nombre, Descripcion, Material, Tipo, Imagen_Asociada } =
+    req.body;
 
   const sql =
     "INSERT INTO Producto (ID_Proveedor, Nombre, Descripcion, Material, Tipo, Imagen_Asociada) VALUES (?, ?, ?, ?, ?, ?)";
@@ -483,10 +471,21 @@ app.post("/editModelo", async (req, res) => {
 
   db.query(
     sql,
-    [ID_Proveedor, Nombre, Descripcion, Material, Tipo, Imagen_Asociada, ID_Producto],
+    [
+      ID_Proveedor,
+      Nombre,
+      Descripcion,
+      Material,
+      Tipo,
+      Imagen_Asociada,
+      ID_Producto,
+    ],
     (error, results, fields) => {
       if (error) {
-        console.error("Error al actualizar producto en la base de datos:", error);
+        console.error(
+          "Error al actualizar producto en la base de datos:",
+          error
+        );
         return res
           .status(500)
           .json({ error: "Error al actualizar producto en la base de datos" });
@@ -495,6 +494,141 @@ app.post("/editModelo", async (req, res) => {
       res.status(200).json({ message: "Producto actualizado con éxito" });
     }
   );
+});
+//CONTROL PRODUCTO INDEPENDIENTE
+app.post("/newProductoIndependiente", async (req, res) => {
+  const Disponibilidad = true;
+  const {
+    ID_Producto,
+    Inventario_Asociado,
+    FechaIngreso,
+    Observaciones,
+    Color,
+    Talla,
+    Precio,
+  } = req.body;
+  const nuevaFechaIngreso=new Date(FechaIngreso);
+  const sql =
+    "INSERT INTO Producto_Independiente (ID_Producto, Inventario_Asociado, FechaIngreso, Observaciones, Disponibilidad, Color, Talla, Precio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+  db.query(
+    sql,
+    [
+      ID_Producto,
+      Inventario_Asociado,
+      nuevaFechaIngreso,
+      Observaciones,
+      Disponibilidad,
+      Color,
+      Talla,
+      Precio,
+    ],
+    (error, results, fields) => {
+      if (error) {
+        console.error("Error al insertar en la base de datos:", error);
+        return res
+          .status(500)
+          .json({ error: "Error al insertar en la base de datos" });
+      }
+
+      const nuevoProductoId = results.insertId; // Obtener el ID del nuevo producto independiente
+
+      res
+        .status(200)
+        .json({
+          message: "Producto independiente agregado con éxito",
+          id: nuevoProductoId,
+        });
+    }
+  );
+});
+app.post("/consultarProductoPorInventarioDisponibles", async (req, res) => {
+  const { Inventario_Asociado } = req.body;
+
+  const sql =
+    "SELECT * FROM Producto_Independiente WHERE Inventario_Asociado = ? AND Disponibilidad = true";
+
+  db.query(sql, [Inventario_Asociado], (error, results, fields) => {
+    if (error) {
+      console.error("Error al consultar la base de datos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error al consultar la base de datos" });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+app.post("/obtenerImagenProducto", async (req, res) => {
+  const { idProducto } = req.body;
+
+  const sql = `
+    SELECT Imagenes.Image
+    FROM Producto
+    INNER JOIN Imagenes ON Producto.Imagen_Asociada = Imagenes.ID_Image
+    WHERE Producto.ID_Producto = ?
+  `;
+
+  db.query(sql, [idProducto], (error, results, fields) => {
+    if (error) {
+      console.error("Error al obtener la imagen del producto:", error);
+      return res.status(500).json({ error: "Error al obtener la imagen del producto" });
+    }
+
+    // Si se encontró la imagen asociada al producto
+    if (results.length > 0 && results[0].Image) {
+      // Devolver la imagen como un array de bytes (Buffer) en la respuesta
+      res.status(200).send(results[0]);
+    } else {
+      // Si no se encontró la imagen asociada al producto
+      res.status(404).json({ error: "No se encontró la imagen asociada al producto" });
+    }
+  });
+});
+
+app.post("/actualizarDisponibilidad", async (req, res) => {
+  const { Cod_par } = req.body;
+  const fechaActual = new Date().toISOString().split('T')[0]; // Obtenemos la fecha actual en formato 'YYYY-MM-DD'
+
+  const sql = `
+    UPDATE Producto_Independiente
+    SET Disponibilidad = false, FechaSalida = ?
+    WHERE Cod_par = ?
+  `;
+
+  db.query(sql, [fechaActual, Cod_par], (error, results, fields) => {
+    if (error) {
+      console.error("Error al actualizar la disponibilidad y fecha de salida:", error);
+      return res.status(500).json({ error: "Error al actualizar la disponibilidad y fecha de salida" });
+    }
+
+    res.status(200).json({ message: "Disponibilidad y fecha de salida actualizadas correctamente" });
+  });
+});
+
+//REPORTES----------------------------------------------
+app.post("/topProductosMasVendidos", async (req, res) => {
+  const { mes, year } = req.body;
+
+  const sql = `
+    SELECT ID_Producto, COUNT(*) AS Ventas
+    FROM Producto_Independiente
+    WHERE MONTH(FechaSalida) = ? AND YEAR(FechaSalida) = ?
+      AND Disponibilidad = false
+    GROUP BY ID_Producto
+    ORDER BY Ventas DESC
+    LIMIT 10;
+  `;
+
+  db.query(sql, [mes, year], (error, results, fields) => {
+    if (error) {
+      console.error("Error al obtener el top de productos más vendidos:", error);
+      return res.status(500).json({ error: "Error al obtener el top de productos más vendidos" });
+    }
+
+    res.status(200).json(results);
+  });
 });
 
 //-----------------------------SUBIR AL SERIDOR-------------------------//
