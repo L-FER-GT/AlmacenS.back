@@ -23,7 +23,7 @@ app.use(express.json());
 // });
 
 const db = mysql.createConnection({
-  host: "127.0.0.1",
+  host: "localhost",
   user: "fernando",
   password: "19735",
   database: "BD_AlmacenSpiaza",
